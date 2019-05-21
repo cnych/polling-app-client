@@ -40,6 +40,7 @@ def helmDeploy(Map args) {
 
 
 podTemplate(label: label, containers: [
+  containerTemplate(name: 'node', image: 'node:alpine', command: 'cat', ttyEnabled: true),
   containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
   containerTemplate(name: 'helm', image: 'cnych/helm', command: 'cat', ttyEnabled: true)
 ], volumes: [
@@ -58,13 +59,22 @@ podTemplate(label: label, containers: [
     stage('单元测试') {
       echo "1.测试阶段"
     }
+    stage('编译打包') {
+      echo "2.编译打包"
+      containert('node') {
+        sh """
+          npm install
+          npm run build
+        """
+      }
+    }
     stage('构建 Docker 镜像') {
       withCredentials([[$class: 'UsernamePasswordMultiBinding',
         credentialsId: 'dockerhub',
         usernameVariable: 'DOCKER_HUB_USER',
         passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
           container('docker') {
-            echo "2. 构建 Docker 镜像阶段"
+            echo "3. 构建 Docker 镜像阶段"
             sh """
               docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
               docker build -t ${image}:${imageTag} .
