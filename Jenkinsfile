@@ -61,7 +61,7 @@ podTemplate(label: label, containers: [
     }
     stage('编译打包') {
       echo "2.编译打包"
-      containert('node') {
+      container('node') {
         sh """
           npm install
           npm run build
