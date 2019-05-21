@@ -65,6 +65,7 @@ podTemplate(label: label, containers: [
         sh """
           npm install
           npm run build
+          ls -la
         """
       }
     }
@@ -76,6 +77,7 @@ podTemplate(label: label, containers: [
           container('docker') {
             echo "3. 构建 Docker 镜像阶段"
             sh """
+              ls -la
               docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
               docker build -t ${image}:${imageTag} .
               docker push ${image}:${imageTag}
